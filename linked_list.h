@@ -68,12 +68,6 @@ public:
         return tail;
     }
 
-    void append(T item) {
-        Node<T>* node = new Node<T>(item);
-        // std::cout << "ADD: node->data is " << node->data << std::endl; // debug
-        append_node(node);
-    }
-
     void append_node(Node<T>* n) {
         if (length == 0)
             head = n;
@@ -82,8 +76,14 @@ public:
         ++length;
     }
 
+   void append(T item) {
+        Node<T>* node = new Node<T>(item);
+        // std::cout << "ADD: node->data is " << node->data << std::endl; // debug
+        append_node(node);
+    }
+
     void remove(int index) {
-        if (index < 0 || index > length || length == 0)
+        if (index < 0 || index > (length - 1) || length == 0)
             throw std::out_of_range("linked_list.h: remove(): index of out bounds.");
         if (index == 0) {
             Node<T>* old_head = head;
@@ -99,8 +99,8 @@ public:
         --length;
     }
 
-    Node<T>* node_at(int index) { // warning: slow
-        if (index < 0 || index > length || length == 0)
+    Node<T>* node_at(int index) {
+        if (index < 0 || index > (length - 1) || length == 0)
             throw std::out_of_range("linked_list.h: node_at(): index of out bounds.");
 
         Node<T>* current = head;
@@ -114,6 +114,23 @@ public:
 
     T at(int index) {
         return node_at(index)->data;
+    }
+
+    LinkedList<T> slice(int start, int end) {
+        if (start < 0 || start > (length - 1) ||
+            end < 0 || end > (length - 1) || start > end)
+            throw std::out_of_range("linked_list.h: slice(): index out of bounds.");
+
+        LinkedList<T> sliced_list = LinkedList<T>();
+        int i = end - start;
+        Node<T>* current = this->node_at(start);
+        while (i > 0) {
+            sliced_list.append(current->data);
+            current = current->next;
+            --i;
+        }
+
+        return sliced_list;
     }
 
     friend std::ostream& operator<<(std::ostream& output, const LinkedList<T>& ll) {
