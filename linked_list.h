@@ -48,6 +48,17 @@ public:
         length = 0;
     }
 
+    ~LinkedList<T>() {
+        Node<T>* current = head;
+        Node<T>* next = current->next;
+        while (next != NULL) {
+            delete current;
+            current = next;
+            next = next->next;
+        }
+        delete current;
+    }
+
     Node<T>* tail() {
         if (head == NULL)
             return head;
@@ -74,12 +85,15 @@ public:
     void remove(int index) {
         if (index < 0 || index > length || length == 0)
             throw std::out_of_range("linked_list.h: remove(): index of out bounds.");
-        if (index == 0)
+        if (index == 0) {
+            Node<T>* old_head = head;
             head = head->next;
-        else {
+            delete old_head;
+        } else {
             Node<T>* prev = node_at(index - 1);
             Node<T>* current = prev->next;
             prev->next = current->next;
+            delete current;
         }
 
         --length;
