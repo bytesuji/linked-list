@@ -2,6 +2,7 @@
 #define _LINKED_LIST_H
 
 #include <iostream>
+#include <stdexcept>
 
 template <typename T>
 class Node {
@@ -35,7 +36,7 @@ template <typename T>
 class LinkedList {
 public:
     Node<T>* head;
-    int length;
+    unsigned length;
 
     LinkedList<T>(Node<T>* h) {
         head = h;
@@ -56,13 +57,13 @@ public:
         return tail;
     }
 
-    void add(T item) {
+    void append(T item) {
         Node<T>* node = new Node<T>(item);
         // std::cout << "ADD: node->data is " << node->data << std::endl; // debug
-        add_node(node);
+        append_node(node);
     }
 
-    void add_node(Node<T>* n) {
+    void append_node(Node<T>* n) {
         if (length == 0)
             head = n;
         else
@@ -70,11 +71,23 @@ public:
         ++length;
     }
 
-    Node<T>* node_at(int index) { // warning: slow
-        if (index < 0 || index > length || length == 0) {
-            std::cout << "linked_list.h: LinkedList::at: Index out of bounds!\n";
-            throw -1;
+    void remove(int index) {
+        if (index < 0 || index > length || length == 0)
+            throw std::out_of_range("linked_list.h: remove(): index of out bounds.");
+        if (index == 0)
+            head = head->next;
+        else {
+            Node<T>* prev = node_at(index - 1);
+            Node<T>* current = prev->next;
+            prev->next = current->next;
         }
+
+        --length;
+    }
+
+    Node<T>* node_at(int index) { // warning: slow
+        if (index < 0 || index > length || length == 0)
+            throw std::out_of_range("linked_list.h: node_at(): index of out bounds.");
 
         Node<T>* current = head;
         while (index > 0) {
@@ -86,7 +99,7 @@ public:
     }
 
     T at(int index) {
-        return (at(index))->data;
+        return node_at(index)->data;
     }
 
     friend std::ostream& operator<<(std::ostream& output, const LinkedList<T>& ll) {
